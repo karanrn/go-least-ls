@@ -5,6 +5,8 @@ import(
 	"os"
 	"path/filepath"
 	"time"
+	"flag"
+	"strconv"
 	"github.com/karanrn/go-least-ls/helper"
 )
 
@@ -35,12 +37,62 @@ func Find(slice []string, val string) (i int, flag bool) {
     return
 }
 
+// Flag usage
+func toolUsage() {
+	// Command line flags
+	var helpUsage string = `go-least-ls:
+A command line utility to list least recently used files in the current directory.
+
+Usage:
+go-least-ls.exe -older 30 -count 10
+> Lists least 10 recently used files (older than 30 days).
+
+-help  : Gets the help.
+-older : How much older files? Accepts integer in units of days.
+-count : Number of files to view.`
+	
+	fmt.Printf(helpUsage)
+	os.Exit(0)
+}
+
 func main(){
 	var files []string
 	var lastFiles = make(map[string]time.Time)
+	var days int
+	var count int
+
+	// Command line flags
+	flag.Usage = toolUsage
+	older := flag.String("older", "", "how older?")
+	counter := flag.String("count", "", "number of files to view.")
+
+	flag.Parse()
+
+	if flag.NFlag() == 0 {
+		toolUsage()
+		os.Exit(-1)
+	}
+
+	if *older != "" && *counter != ""{
+		var err error
+		days, err = strconv.Atoi(*older)
+		if err != nil {
+			fmt.Println("-older value has to be integer.")
+			os.Exit(-1)
+		}
+
+		count, err = strconv.Atoi(*counter)
+		if err != nil {
+			fmt.Println("-count value has to be integer.")
+			os.Exit(-1)
+		}
+
+	}else {
+		toolUsage()
+	}
 
 	// 30 days before current time
-	archiveDate := time.Now().Local().AddDate(0, 0, -30)
+	archiveDate := time.Now().Local().AddDate(0, 0, -days)
 
 	// File extension types
 	//var documents = []string{".pdf", ".doc", ".docx", ".txt"}
@@ -67,7 +119,6 @@ func main(){
 	}
 
 	sortedfiles := helper.Sort(lastFiles)
-	count := 5
 	for i := 0; i < len(sortedfiles) ; i++ {
 		if count == 0 {
 			break

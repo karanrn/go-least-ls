@@ -24,14 +24,15 @@ func visit(files *[]string) filepath.WalkFunc {
     }
 }
 
-// Check the extension
-func Find(slice []string, val string) (int, bool) {
+// Check the extension of the file
+// naked return : returns zero values when no match
+func Find(slice []string, val string) (i int, flag bool) {
     for i, item := range slice {
         if item == val {
             return i, true
         }
     }
-    return -1, false
+    return
 }
 
 func main(){
@@ -44,9 +45,9 @@ func main(){
 	// File extension types
 	//var documents = []string{".pdf", ".doc", ".docx", ".txt"}
 
-	// Root folder
-	root := "E:/"
-	err := filepath.Walk(root, visit(&files))
+	// Current folder/directory
+	root, err := os.Getwd()
+	err = filepath.Walk(root, visit(&files))
 	if err != nil{
 		panic(err)
 	}
@@ -58,10 +59,10 @@ func main(){
 		}
 		// _, found := Find(documents, filepath.Ext(file))
 		
-		lastaccess := info.ModTime()
-		if lastaccess.Before(archiveDate) || lastaccess.Equal(archiveDate) {
+		lastAccess := info.ModTime()
+		if lastAccess.Before(archiveDate) || lastAccess.Equal(archiveDate) {
 				//fmt.Printf("%s : %s\n",file, info.ModTime())
-				lastFiles[file] = lastaccess
+				lastFiles[file] = lastAccess
 		}
 	}
 

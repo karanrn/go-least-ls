@@ -1,13 +1,13 @@
 # go-least-ls
 A command line utility to list (ls) least recently used files.<br>
-A simple command line tool to check old files in the system.
+A simple command line tool to check older files in the system.
 
 Usage:
 ```
 ./go-least-ls -count=10 -older=60
 ```
-Utility lists all the least recently files in the current directory older <br>
-than `-older=<value>`.
+Utility lists all the least recently used files in the current directory older <br>
+than `-older=<value>` mentioned.
 
 ![alt text](./Usage.png "Usage.")
 

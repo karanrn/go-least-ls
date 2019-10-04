@@ -74,7 +74,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	if *help == "" {
+	if flag.NFlag() == 1 && *help == "" {
 		toolUsage()
 		os.Exit(0)
 	}

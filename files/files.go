@@ -6,7 +6,7 @@ import (
 	"github.com/karanrn/go-least-ls/helper"
 	"os"
 	"path/filepath"
-	"strconv"
+	_ "strconv"
 	"time"
 )
 
@@ -48,8 +48,8 @@ go-least-ls.exe -older 30 -count 10
 > Lists least 10 recently used files (older than 30 days).
 
 -help  : Gets the help.
--older : How much older files? Accepts integer in units of days.
--count : Number of files to view.`
+-older : How much older files? Accepts integer in units of days. Default 30
+-count : Number of files to view. Default is 5`
 
 	fmt.Printf(helpUsage)
 	os.Exit(0)
@@ -63,9 +63,9 @@ func main() {
 
 	// Command line flags
 	flag.Usage = toolUsage
-	older := flag.String("older", "", "how older?")
-	counter := flag.String("count", "", "number of files to view.")
-	help := flag.String("help", "", "Get usage help.")
+	older := flag.Int("older", 30, "How older?")
+	counter := flag.Int("count", 5, "Number of files to view.")
+	help := flag.Bool("help", false, "Get usage help.")
 
 	flag.Parse()
 
@@ -75,29 +75,13 @@ func main() {
 	}
 
 	// Stupid way to implement an option
-	if flag.NFlag() == 1 && *help == "" {
+	if *help {
 		toolUsage()
 		os.Exit(0)
 	}
 
-	if *older != "" && *counter != "" {
-		var err error
-		days, err = strconv.Atoi(*older)
-		if err != nil {
-			fmt.Println("-older value has to be integer.")
-			os.Exit(-1)
-		}
-
-		count, err = strconv.Atoi(*counter)
-		if err != nil {
-			fmt.Println("-count value has to be integer.")
-			os.Exit(-1)
-		}
-
-	} else {
-		fmt.Println("Check usage- go-least-ls.exe -help")
-	}
-
+	days = *older
+	count = *counter
 	// 30 days before current time
 	archiveDate := time.Now().Local().AddDate(0, 0, -days)
 

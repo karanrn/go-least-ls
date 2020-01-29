@@ -6,7 +6,6 @@ import (
 	"github.com/karanrn/go-least-ls/helper"
 	"os"
 	"path/filepath"
-	_ "strconv"
 	"time"
 )
 
@@ -44,12 +43,14 @@ func toolUsage() {
 A command line utility to list least recently used files in the current directory.
 
 Usage:
-go-least-ls.exe -older 30 -count 10
+go-least-ls.exe -older 30 -count 10 -filetype .txt
 > Lists least 10 recently used files (older than 30 days).
 
--help  : Gets the help.
--older : How much older files? Accepts integer in units of days. Default 30
--count : Number of files to view. Default is 5`
+-help     : Gets the help.
+-older    : How much older files? Accepts integer in units of days. Default 30
+-filetype : Extension of files to be searched. Ex: .exe, .doc, .txt
+-count    : Number of files to view. Default is 5
+`
 
 	fmt.Printf(helpUsage)
 	os.Exit(0)
@@ -65,6 +66,7 @@ func main() {
 	flag.Usage = toolUsage
 	older := flag.Int("older", 30, "How older?")
 	counter := flag.Int("count", 5, "Number of files to view.")
+	fileType := flag.String("filetype", "", "Enter the file type to search.")
 	help := flag.Bool("help", false, "Get usage help.")
 
 	flag.Parse()
@@ -80,6 +82,14 @@ func main() {
 		os.Exit(0)
 	}
 
+	// Check for file type
+	if *fileType == ""{
+		fmt.Println("File type is not given")
+		fmt.Println("For more help: go-least-ls -help")
+		os.Exit(0)
+	}
+
+	extType := *fileType
 	days = *older
 	count = *counter
 	// 30 days before current time
@@ -96,6 +106,9 @@ func main() {
 	}
 
 	for _, file := range files {
+		if extType != filepath.Ext(file){
+			continue
+		}
 		info, err := os.Stat(file)
 		if err != nil {
 			panic(err)
@@ -109,14 +122,19 @@ func main() {
 		}
 	}
 
-	sortedfiles := helper.Sort(lastFiles)
-	for i := 0; i < len(sortedfiles); i++ {
-		if count == 0 {
-			break
+	if len(lastFiles) != 0{
+		sortedfiles := helper.Sort(lastFiles)
+		for i := 0; i < len(sortedfiles); i++ {
+			if count == 0 {
+				break
+			}
+			f := sortedfiles[i]
+			fmt.Printf("%s : %s \n", f.Key, f.Value)
+			count = count - 1
 		}
-		f := sortedfiles[i]
-		fmt.Printf("%s : %s \n", f.Key, f.Value)
-		count = count - 1
+	}else{
+		fmt.Printf("No files found for %s extension", *fileType)
+		fmt.Println("Extension is either invalid or no files with such extension exist.")
 	}
 
 }

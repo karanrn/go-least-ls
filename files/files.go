@@ -43,13 +43,14 @@ func toolUsage() {
 A command line utility to list least recently used files in the current directory.
 
 Usage:
-go-least-ls.exe -older 30 -count 10 -filetype .txt
+go-least-ls.exe -older 30 -count 10 -filetype .txt [-all]
 > Lists least 10 recently used files (older than 30 days).
 
 -help     : Gets the help.
 -older    : How much older files? Accepts integer in units of days. Default 30
 -filetype : Extension of files to be searched. Ex: .exe, .doc, .txt
 -count    : Number of files to view. Default is 5
+-all      : Optional flag to list hidden files in the output
 `
 
 	fmt.Printf(helpUsage)
@@ -67,6 +68,7 @@ func main() {
 	older := flag.Int("older", 30, "How older?")
 	counter := flag.Int("count", 5, "Number of files to view.")
 	fileType := flag.String("filetype", "", "Enter the file type to search.")
+	hidden := flag.Bool("all", false, "Include hidden files.")
 	help := flag.Bool("help", false, "Get usage help.")
 
 	flag.Parse()
@@ -129,7 +131,19 @@ func main() {
 				break
 			}
 			f := sortedfiles[i]
-			fmt.Printf("%s : %s \n", f.Key, f.Value)
+			rel, _ := filepath.Rel(root, f.Key)
+			
+			// Default show all files
+			if *hidden{
+				fmt.Printf("%s : %s \n", rel, f.Value)
+			}else {
+				if helper.IsHidden(rel){
+					count = count - 1
+					continue
+				}else {
+					fmt.Printf("%s : %s \n", rel, f.Value)
+				}
+			}
 			count = count - 1
 		}
 	}else{

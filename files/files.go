@@ -57,16 +57,45 @@ go-least-ls.exe -older 30 -count 10 -filetype .txt [-all]
 	os.Exit(0)
 }
 
-func main() {
+// Return all the files satisfying the condition of file type, older
+func LeastAccessFiles(older int, extType string) (map[string]time.Time, string){
+	
 	var files []string
 	var lastFiles = make(map[string]time.Time)
-	var days int
-	var count int
+	archiveDate := time.Now().Local().AddDate(0, 0, -older)
+
+	// Current folder/directory
+	root, err := os.Getwd()
+	err = filepath.Walk(root, visit(&files))
+	if err != nil {
+		panic(err)
+	}
+
+	for _, file := range files {
+		if extType != filepath.Ext(file){
+			continue
+		}
+		info, err := os.Stat(file)
+		if err != nil {
+			panic(err)
+		}
+
+		lastAccess := info.ModTime()
+		if lastAccess.Before(archiveDate) || lastAccess.Equal(archiveDate) {
+			lastFiles[file] = lastAccess
+		}
+	}
+
+	return lastFiles, root
+}
+
+
+func main() {
 
 	// Command line flags
 	flag.Usage = toolUsage
 	older := flag.Int("older", 30, "How older?")
-	counter := flag.Int("count", 5, "Number of files to view.")
+	count := flag.Int("count", 5, "Number of files to view.")
 	fileType := flag.String("filetype", "", "Enter the file type to search.")
 	hidden := flag.Bool("all", false, "Include hidden files.")
 	help := flag.Bool("help", false, "Get usage help.")
@@ -91,43 +120,17 @@ func main() {
 		os.Exit(0)
 	}
 
-	extType := *fileType
-	days = *older
-	count = *counter
-	// 30 days before current time
-	archiveDate := time.Now().Local().AddDate(0, 0, -days)
-
 	// File extension types
 	//var documents = []string{".pdf", ".doc", ".docx", ".txt"}
 
-	// Current folder/directory
-	root, err := os.Getwd()
-	err = filepath.Walk(root, visit(&files))
-	if err != nil {
-		panic(err)
-	}
+	// Get least accessed files 
+	lastFiles, root := LeastAccessFiles(*older, *fileType)
 
-	for _, file := range files {
-		if extType != filepath.Ext(file){
-			continue
-		}
-		info, err := os.Stat(file)
-		if err != nil {
-			panic(err)
-		}
-		// _, found := Find(documents, filepath.Ext(file))
-
-		lastAccess := info.ModTime()
-		if lastAccess.Before(archiveDate) || lastAccess.Equal(archiveDate) {
-			//fmt.Printf("%s : %s\n",file, info.ModTime())
-			lastFiles[file] = lastAccess
-		}
-	}
-
+	counter := *count
 	if len(lastFiles) != 0{
 		sortedfiles := helper.Sort(lastFiles)
 		for i := 0; i < len(sortedfiles); i++ {
-			if count == 0 {
+			if counter == 0 {
 				break
 			}
 			f := sortedfiles[i]
@@ -138,17 +141,17 @@ func main() {
 				fmt.Printf("%s : %s \n", rel, f.Value)
 			}else {
 				if helper.IsHidden(rel){
-					count = count - 1
+					counter = counter - 1
 					continue
 				}else {
 					fmt.Printf("%s : %s \n", rel, f.Value)
 				}
 			}
-			count = count - 1
+			counter = counter - 1
 		}
 	}else{
 		fmt.Printf("No files found for %s extension", *fileType)
 		fmt.Println("Extension is either invalid or no files with such extension exist.")
 	}
-
+	
 }

@@ -1,6 +1,6 @@
 # go-least-ls
 A command line utility to list (ls) least recently used files.<br>
-A simple command line tool to find and clear up old and unused files/directory in your system.
+A simple command line tool to find old and unused files/directory in your system.
 
 Usage:
 ```

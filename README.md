@@ -8,9 +8,12 @@ Usage:
 ```
 Flags:
 ```
--count    : Number of files to show/list, oldest file will be at top. Default value is 5. It should be an integer.
--older    : How older a file should be shown? Value is number of days. Default value is 30. It should be an integer.
--filetype : File type, extension of files to be searched. It should be a string. Ex: -filetype .txt
+-count    : Number of files to show/list, oldest file will be at top. 
+            Default value is 5. It should be an integer.
+-older    : How older a file should be shown? Value is number of days. 
+            Default value is 30. It should be an integer.
+-filetype : File type, extension of files to be searched. It should be a string. 
+            Ex: -filetype .txt
 -all      : By default, utility does not list hidden files. Mention this flag to list hidden files.
 ```
 **NOTE**: Currently, Hidden file check is only for linux/unix OS type.

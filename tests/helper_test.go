@@ -18,9 +18,17 @@ func TestContains(t *testing.T){
 
 func TestIsHidden(t *testing.T){
 	fileName := ".hello.txt"
+	directory := ".vscode/file1.exe"
 
+	// Check for hidden file
 	res := helper.IsHidden(fileName)
 	if !res {
-		t.Error("File is hidden")
+		t.Error("File is actually hidden")
+	}
+
+	// Check for hidden directory
+	res = helper.IsHidden(directory)
+	if !res {
+		t.Error("Directory is actually hidden")
 	}
 }

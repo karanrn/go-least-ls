@@ -33,7 +33,7 @@ Using `-filetype` to list files based on extension mentioned:<br>
 ![alt text](screenshots/filetypeFlag.png "Usage of filetype flag to list files based on extension type.") 
 
 ---
-##License
+# License
 MIT License
 
 Copyright (c) 2019 Karan Nadagoudar
